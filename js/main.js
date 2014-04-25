@@ -25,29 +25,52 @@
         TargetFPS = 54,
 
         // Should we be in debug mode?
-        DEBUG = true,
+        DEBUG = $.urlParam("debug") !== null,
 
         // Should we be in testing mode? (super debug)
-        TESTING = false,
+        TESTING = $.urlParam("test") !== null,
 
         // What colors should be used for various things
         colors = {
-            background: "#e4faff",
+            background: [
+                [0, 'rgba(220, 241, 246, 1.000)'],
+                [1, 'rgba(246, 216, 223, 1.000)']
+            ],
+            branding: "#666",
+            name: "#1a1f1e",
+            nameLine: "#000",
             standard: "#000"
         },
 
         // Various timing options
         timing = {
             delays: {
-                title: 1000
+                title: 0
             },
 
             duration: {
-                title: 3000
+                title: 0
             }
         },
 
         typography = {
+            branding: {
+                factor: 20,
+                min: 18,
+                styles: "bold",
+                scaling: .8
+            },
+            name: {
+                factor: 35,
+                min: 14,
+                scaling: .71
+            },
+            small: {
+                factor: 70,
+                min: 8,
+                scaling: .3
+            },
+
             header: {
                 factor: 17,
                 min: 25
@@ -63,10 +86,6 @@
             body: {
                 factor: 90,
                 min: 10
-            },
-            small: {
-                factor: 90,
-                min: 6
             }
         },
 
@@ -108,6 +127,14 @@
         imageSources = { /* computed */ },
 
         measure = {
+            rtxt: function (d) {
+                var m = window.measure;
+                return m.stage.x + m.stage.w - d;
+            },
+            txt: function (n, t) {
+                var m = window.measure;
+                return t + (m.typography[n] * typography[n].scaling);
+            },
             col: function (n) {
                 var m = window.measure;
                 return m.delta.x + (m.column.w * (n - .5));
@@ -148,21 +175,32 @@
                 y: 0
             },
             stage: {
-                factor: 0.86,
+                factor: {
+                    x: 0.95,
+                    y: 0.93
+                },
                 w: 0,
-                h: 0
+                h: 0,
+                x: 0,
+                y: 0
             },
             column: {
                 number: 3,
                 w: 0,
-                h: 0
+                h: 0,
+                o: 0
             }
         };
 
     // ===== Methods ====
 
     function font(typo) {
-        return measure.typography[typo] + "px Arial";
+        var s = "";
+        if (typography[typo].styles) {
+            s = typography[typo].styles + " ";
+        }
+
+        return s + measure.typography[typo] + "px Arial";
     }
 
     function moveCamera(x, y, d, s) {
@@ -206,12 +244,14 @@
         }
         m.units = m.unit.base * zoom.level;
 
-        m.stage.w = m.full.x * m.stage.factor;
-        m.stage.m = m.full.x * ((1 - m.stage.factor) / 2);
-        m.stage.h = m.full.y;
+        m.stage.w = m.full.x * m.stage.factor.x;
+        m.stage.h = m.full.y * m.stage.factor.y;
+        m.stage.x = (m.full.x * (1 - m.stage.factor.x)) / 2;
+        m.stage.y = (m.full.y * (1 - m.stage.factor.y)) / 2;
 
         m.column.w = m.stage.w / m.column.number;
         m.column.h = m.stage.h;
+        m.column.o = (m.full.y * (1 - m.stage.factor.y)) / 2;
 
         // Update type
         $.each(typography, function (k, v) {
@@ -253,8 +293,6 @@
         case 0: slide0(); break;
 
         }
-
-        console.log("@todo: display slide" + idx);
     }
 
     // ===== Drivers ====
@@ -265,23 +303,28 @@
     function onDraw() {
         var x = window.cxa,
             m = measure,
-            i = images.backgroundImg,
-            t = {
-                w: Math.ceil(m.full.x / i.w),
-                h: Math.ceil(m.full.y / i.h)
-            },
-            wix, hix;
+            grd;
+
+        // Create gradient
+        grd = x.createLinearGradient(m.half.x, 0, m.half.x, m.full.y);
+
+        // Add colors
+        $.each(colors.background, function (i, v) {
+            grd.addColorStop.apply(grd, v);
+        });
 
         x.globalAlpha = 1;
-        x.fillStyle = colors.background;
+        x.fillStyle = grd;
         x.fillRect(0, 0, m.full.x, m.full.y);
 
+/*
         for (wix = 0; wix < t.w; wix++) {
             for (hix = 0; hix < t.h; hix++) {
                 x.drawImage(imageSources.backgroundImg,
                     wix * i.w, hix * i.h, i.w, i.h);
             }
         }
+*/
     }
 
     /**
@@ -422,6 +465,10 @@
         .on("resize", resize);
 
     window.fnt = font;
+    window.clrs = colors;
+    window.dbg = DEBUG;
+    window.tst = TESTING;
+    window.dbgm = DEBUG || TESTING;
 
     // ===== Init =====
 

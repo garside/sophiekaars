@@ -22,3 +22,11 @@
 }());
 
 // Place any jQuery/helper plugins in here.
+$.urlParam = function(name){
+    var results = new RegExp('[\\?&amp;]' + name + '([^&amp;#]*)').exec(window.location.href);
+    if (results) {
+        return results[1] || null;
+    }
+
+    return null;
+};

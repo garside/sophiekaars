@@ -19,10 +19,18 @@ body {
     -o-font-smoothing: antialiased;
 }
 
+#main {
+    min-width: 480px;
+}
+
 *.unselectable {
    -moz-user-select: -moz-none;
    -khtml-user-select: none;
    -webkit-user-select: none;
    -ms-user-select: none;
    user-select: none;
+}
+
+body.mouseover {
+    cursor: pointer;
 }

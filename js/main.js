@@ -7,7 +7,10 @@
      */
 
         // The total number of slides in the site
-    var TOTAL_SLIDES = 1,
+    var TOTAL_SLIDES = 4,
+
+        // The minimum width for the canvas
+        MIN_WIDTH = 480,
 
         // Rich media files needed before starting the application
         files = [
@@ -36,9 +39,14 @@
                 [0, 'rgba(220, 241, 246, 1.000)'],
                 [1, 'rgba(246, 216, 223, 1.000)']
             ],
+
             branding: "#666",
             name: "#1a1f1e",
+            nav: "#000",
+
             nameLine: "#000",
+            navLine: "#000",
+
             standard: "#000"
         },
 
@@ -65,10 +73,23 @@
                 min: 14,
                 scaling: .71
             },
+            nav: {
+                factor: 50,
+                min: 12,
+                styles: "normal",
+                scaling: 1.25
+            },
+
+            // Factorizors
             small: {
                 factor: 70,
                 min: 8,
                 scaling: .3
+            },
+            pad: {
+                factor: 90,
+                min: 8,
+                scaling: .8
             },
 
             header: {
@@ -97,7 +118,12 @@
             index: -1,
             drawn: false,
             done: false,
-            focused: false
+            focused: false,
+            hotspots: {},
+            dest: {},
+            mouseX: 0,
+            mouseY: 0,
+            isOver: null
         },
 
         camera = {
@@ -194,6 +220,27 @@
 
     // ===== Methods ====
 
+    function overSpot(o) {
+        var mx = scene.mouseX,
+            my = scene.mouseY;
+
+        if (mx > o.x && mx < (o.x + o.w) && my > o.y && my < (o.y + o.h)) {
+            return true;
+        } else {return false};
+    }
+
+    function findPosition(obj) {
+        var curleft = 0, curtop = 0;
+        if (obj.offsetParent) {
+            do {
+                curleft += obj.offsetLeft;
+                curtop += obj.offsetTop;
+            } while (obj = obj.offsetParent);
+            return { x: curleft, y: curtop };
+        }
+        return undefined;
+    }
+
     function font(typo) {
         var s = "";
         if (typography[typo].styles) {
@@ -225,6 +272,10 @@
         // Set the new window size
         m.viewport.w = w.width();
         m.viewport.h = w.height();
+
+        if (m.viewport.w < MIN_WIDTH) {
+            m.viewport.w = MIN_WIDTH;
+        }
 
         // Resize the canvas
         e.width = m.viewport.w;
@@ -265,7 +316,7 @@
 
         // @TODO: Reposition sharing icons
 
-        moveCamera(0, -1 * m.full.y * s.index, c.resize.drag, c.resize.speed);
+        moveCamera(0, m.full.y * s.index, c.resize.drag, c.resize.speed);
 
         s.drawn = false;
     }
@@ -273,7 +324,13 @@
     function finish () {
         setTimeout(function () {
             scene.done = false;
-            scene.index = 0;
+            scene.index = 1;
+
+            scene.hotspots.header = {};
+            scene.hotspots.slide0 = {};
+            scene.hotspots.slide1 = {};
+            scene.hotspots.slide2 = {};
+            scene.hotspots.slide3 = {};
 
             setTimeout(function () {
                 scene.done = true;
@@ -291,6 +348,9 @@
         switch (idx) {
 
         case 0: slide0(); break;
+        case 1: slide1(); break;
+        case 2: slide2(); break;
+        case 3: slide3(); break;
 
         }
     }
@@ -342,8 +402,8 @@
         m.delta.x = m.half.x + c.x;
         m.delta.y = m.half.y + c.y;
 
-        m.focus.min = (-1 * m.full.y * s.index) - (1 * m.units);
-        m.focus.max = (-1 * m.full.y * s.index) + (1 * m.units);
+        m.focus.min = (m.full.y * s.index) - (1 * m.units);
+        m.focus.max = (m.full.y * s.index) + (1 * m.units);
 
         if (!s.focused && c.y > m.focus.min && c.y < m.focus.max) {
             doFocus();
@@ -362,16 +422,18 @@
             x = window.cxa,
             h = m.full.y,
             o = m.units,
-            idx = 0, cur = 0, max = 2;
+            idx = 0, cur = 0, nxt = 0, max = 2;
 
         x.lineWidth = 1;
         x.globalAlpha = 1;
         x.fillStyle = colors.standard;
         x.strokeStyle = colors.standard;
 
+        header();
+
         for (; idx < TOTAL_SLIDES; idx++) {
             cur = h * idx;
-            if (c.y > (cur - o) && c.y < (cur + o)) {
+            if (c.y > (cur - h + o) && c.y < (cur + h - o)) {
                 invoke(idx);
                 max--;
             }
@@ -423,19 +485,59 @@
     // ===== Handlers ====
 
     function mousedown(event) {
+        mousemove(event);
 
+        var c = camera,
+            m = measure,
+            s = scene,
+            o = s.isOver,
+            d;
+
+        if (o !== null) {
+            d = scene.dest[o];
+            if (d !== undefined) {
+                scene.focused = false;
+                s.drawn = false;
+                scene.index = d;
+                moveCamera(0, m.full.y * s.index, c.resize.drag, c.resize.speed);
+            } else {
+                console.log("unknown action", o);
+            }
+        }
     }
 
     function mouseup(event) {
-
+        keys.focus();
     }
 
     function mousemove(event) {
+        var pos = findPosition(event.target),
+            x = event.pageX - pos.x,
+            y = event.pageY - pos.y,
+            hasHit = false;
 
+        scene.mouseX = x;
+        scene.mouseY = y;
+        scene.isOver = null;
+
+        $.each(scene.hotspots.header, function (name, pos) {
+            if (overSpot(pos)) {
+                scene.isOver = name;
+                return false;
+            }
+        });
+
+        if (scene.isOver) {
+            $("body").addClass("mouseover");
+        } else {
+            $("body").removeClass("mouseover");
+        }
     }
 
     function keydown(event) {
-
+        if (scene.isOver) {
+            console.log(scene.isOver);
+        }
     }
 
     function stopDefault(event) {
@@ -469,15 +571,16 @@
     window.dbg = DEBUG;
     window.tst = TESTING;
     window.dbgm = DEBUG || TESTING;
+    window.cam = camera;
 
     // ===== Init =====
 
     $(function () {
-        setInterval(onFrame, Math.round(1000/TargetFPS));
-
         resize();
         measure.units = (measure.unit.base * measure.unit.factor) * zoom.level;
         camera.y = camera.destination.y = 0;
+
+        setInterval(onFrame, Math.round(1000/TargetFPS));
 
         $.each(images, function (k, v) {
             var i = new Image();

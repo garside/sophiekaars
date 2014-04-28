@@ -3,11 +3,13 @@
         m = window.measure,
         x = window.cxa;
 
-    window.slide0 = function () {
+    window.slide3 = function () {
+        var orig =  m.full.y * 3;
+
         x.globalAlpha = 1;
         x.textAlign = "center";
         x.fillStyle = "#000";
         x.font = font("header");
-        x.fillText("Projects", m.delta.x, m.delta.y);
+        x.fillText("News", m.delta.x, m.delta.y - orig);
     };
 }(jQuery));

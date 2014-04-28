@@ -27,15 +27,30 @@
     });
 
     // Setup scene destinations
-    s.dest.project = 0;
-    s.dest.info = 1;
-    s.dest.contact = 2;
-    s.dest.news = 3;
+	s.dest.name = 0;
+    s.dest.branding = 0;
+    s.dest.project = 1;
+    s.dest.info = 2;
+    s.dest.contact = 3;
+    s.dest.news = 4;
 
     function drawBranding() {
         x.fillStyle = colors.branding;
         x.font = font("branding");
-        x.fillText(TEXT.branding, m.col(-1), m.txt("branding", t));
+		
+		var dx = m.col(-1, true), 
+			dy = m.txt("branding", t),
+			d = x.measureText(TEXT.branding),
+			h = m.txt("branding", 0);
+		
+        x.fillText(TEXT.branding, dx, dy);
+		
+		s.hotspots.header.branding = {
+            x: dx,
+            y: t,
+            w: d.width,
+            h: h
+        };
     }
 
     function drawName() {
@@ -58,6 +73,13 @@
         x.moveTo(startX, lineY);
         x.lineTo(m.rtxt(0), lineY);
         x.stroke();
+		
+		s.hotspots.header.name = {
+            x: startX,
+            y: t,
+            w: d.width,
+            h: m.txt("name", 0)
+        };
     }
 
     function drawProject() {

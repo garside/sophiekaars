@@ -8,6 +8,6 @@
         x.textAlign = "center";
         x.fillStyle = "#000";
         x.font = font("header");
-        x.fillText("Projects", m.delta.x, m.delta.y);
+        x.fillText("Featured", m.delta.x, m.delta.y);
     };
 }(jQuery));

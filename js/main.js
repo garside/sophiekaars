@@ -7,7 +7,7 @@
      */
 
         // The total number of slides in the site
-    var TOTAL_SLIDES = 4,
+    var TOTAL_SLIDES = 5,
 
         // The minimum width for the canvas
         MIN_WIDTH = 480,
@@ -161,9 +161,9 @@
                 var m = window.measure;
                 return t + (m.typography[n] * typography[n].scaling);
             },
-            col: function (n) {
+            col: function (n, f) {
                 var m = window.measure;
-                return m.delta.x + (m.column.w * (n - .5));
+                return (f === true ? m.half.x : m.delta.x) + (m.column.w * (n - .5));
             },
             row: function (u) {
                 var m = window.measure;
@@ -316,7 +316,7 @@
 
         // @TODO: Reposition sharing icons
 
-        moveCamera(0, m.full.y * s.index, c.resize.drag, c.resize.speed);
+        moveCamera(-1 * m.full.x * s.index, 0, c.resize.drag, c.resize.speed);
 
         s.drawn = false;
     }
@@ -331,6 +331,7 @@
             scene.hotspots.slide1 = {};
             scene.hotspots.slide2 = {};
             scene.hotspots.slide3 = {};
+            scene.hotspots.slide4 = {};
 
             setTimeout(function () {
                 scene.done = true;
@@ -351,6 +352,7 @@
         case 1: slide1(); break;
         case 2: slide2(); break;
         case 3: slide3(); break;
+        case 4: slide4(); break;
 
         }
     }
@@ -395,17 +397,17 @@
             m = measure,
             s = scene;
 
-        c.y += perc(c.destination.y, c.y, c.speed);
+        c.x += perc(c.destination.x, c.x, c.speed);
         c.speed += perc(c.destination.speed, c.speed, 2);
 
         m.units = (m.unit.base * m.unit.factor) * zoom.level;
         m.delta.x = m.half.x + c.x;
         m.delta.y = m.half.y + c.y;
 
-        m.focus.min = (m.full.y * s.index) - (1 * m.units);
-        m.focus.max = (m.full.y * s.index) + (1 * m.units);
+        m.focus.min = (-1 * m.full.x * s.index) - (1 * m.units);
+        m.focus.max = (-1 * m.full.x * s.index) + (1 * m.units);
 
-        if (!s.focused && c.y > m.focus.min && c.y < m.focus.max) {
+        if (!s.focused && c.x > m.focus.min && c.x < m.focus.max) {
             doFocus();
         }
 
@@ -420,7 +422,7 @@
             m = measure,
             s = scene,
             x = window.cxa,
-            h = m.full.y,
+            w = m.full.x,
             o = m.units,
             idx = 0, cur = 0, nxt = 0, max = 2;
 
@@ -432,8 +434,8 @@
         header();
 
         for (; idx < TOTAL_SLIDES; idx++) {
-            cur = h * idx;
-            if (c.y > (cur - h + o) && c.y < (cur + h - o)) {
+            cur = -1 * w * idx;
+            if (c.x > (cur - w + o) && c.x < (cur + w - o)) {
                 invoke(idx);
                 max--;
             }
@@ -499,7 +501,7 @@
                 scene.focused = false;
                 s.drawn = false;
                 scene.index = d;
-                moveCamera(0, m.full.y * s.index, c.resize.drag, c.resize.speed);
+                moveCamera(-1 * m.full.x * s.index, 0, c.resize.drag, c.resize.speed);
             } else {
                 console.log("unknown action", o);
             }
@@ -578,7 +580,7 @@
     $(function () {
         resize();
         measure.units = (measure.unit.base * measure.unit.factor) * zoom.level;
-        camera.y = camera.destination.y = 0;
+        camera.x = camera.destination.x = 0;
 
         setInterval(onFrame, Math.round(1000/TargetFPS));
 

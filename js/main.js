@@ -85,12 +85,12 @@
             small: {
                 factor: 70,
                 min: 8,
-                scaling: .3
+                scaling: .5
             },
             pad: {
                 factor: 90,
                 min: 8,
-                scaling: .8
+                scaling: 1.2
             },
 
             header: {

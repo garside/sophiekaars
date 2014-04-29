@@ -71,6 +71,7 @@
             name: {
                 factor: 35,
                 min: 14,
+                styles: "lighter",
                 scaling: .71
             },
             nav: {

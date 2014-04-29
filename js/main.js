@@ -248,7 +248,7 @@
             s = typography[typo].styles + " ";
         }
 
-        return s + measure.typography[typo] + "px Arial";
+        return s + measure.typography[typo] + "px HelveticaNeue-UltraLight, Helvetica, Arial";
     }
 
     function moveCamera(x, y, d, s) {

@@ -1,13 +1,53 @@
 (function ($) {
+    function mkpointer(x, y) { return (new Array(x)).join("> ") + (y || ""); }
+
+    window.mkpointer = mkpointer;
+
     var TEXT = {
             branding: "WEBSITE",
             name: "SOPHIE KAARS SIJPESTEIJN",
             projects: "PROJECTS",
             info: "INFO",
             contact: "CONTACT",
-            news: "NEWS"
+            news: "NEWS",
+            pointer: mkpointer(30),
+
+            slide0top: "FEATURED",
+            slide0bottom: "LATEST>UPDATES",
+
+            slide1top: "PROJECTS",
+            slide1bottom: "CATEGORIES",
+
+            slide2top: "INFORMATION",
+            slide2bottom: "CATEGORIES",
+
+            slide3top: "CONTACT",
+            slide3bottom: "SOCIAL>MEDIA",
+
+            slide4top: "NEWS"
         },
-        splits = ["branding", "name"],
+        splits = ["branding", "name",
+            "slide0top", "slide0bottom",
+            "slide1top", "slide1bottom",
+            "slide2top", "slide2bottom",
+            "slide3top", "slide3bottom",
+            "slide4top"],
+        noBottomPointer = [4],
+        pointers = {
+            slide0top: 18,
+            slide0bottom: 3,
+
+            slide1top: 18,
+            slide1bottom: 15,
+
+            slide2top: 15,
+            slide2bottom: 15,
+
+            slide3top: 18,
+            slide3bottom: 14,
+
+            slide4top: 22
+        },
         s = window.scene,
         m = window.measure,
         x = window.cxa,
@@ -18,16 +58,25 @@
         lineStart,
         lineStartY,
         linePos,
+        brandingEnd,
         navX;
+
+    window.pgLabels = TEXT;
+    window.pointerEnd;
+    window.topPointerY;
+    window.bottomPointerY;
 
     // Letter spacing isn't a thing in canvas, so add spaces manually where
     // desired.
     $.each(splits, function (i, v) {
         TEXT[v] = TEXT[v].split("").join(" ");
+        if (pointers[v] !== undefined) {
+            TEXT[v] = mkpointer(pointers[v], TEXT[v]);
+        }
     });
 
     // Setup scene destinations
-	s.dest.name = 0;
+    s.dest.name = 0;
     s.dest.branding = 0;
     s.dest.project = 1;
     s.dest.info = 2;
@@ -37,15 +86,16 @@
     function drawBranding() {
         x.fillStyle = colors.branding;
         x.font = font("branding");
-		
-		var dx = m.col(-1, true), 
-			dy = m.txt("branding", t),
-			d = x.measureText(TEXT.branding),
-			h = m.txt("branding", 0);
-		
+
+        var dx = m.col(-1, true),
+            dy = m.txt("branding", t),
+            d = x.measureText(TEXT.branding),
+            h = m.txt("branding", 0);
+
         x.fillText(TEXT.branding, dx, dy);
-		
-		s.hotspots.header.branding = {
+        brandingEnd = dy + (h / 2);
+
+        s.hotspots.header.branding = {
             x: dx,
             y: t,
             w: d.width,
@@ -68,13 +118,15 @@
         linePos = startY;
         lineStartY = lineY;
 
+        x.lineWidth = 1;
         x.strokeStyle = colors.nameLine;
         x.beginPath();
         x.moveTo(startX, lineY);
         x.lineTo(m.rtxt(0), lineY);
         x.stroke();
-		
-		s.hotspots.header.name = {
+        x.closePath();
+
+        s.hotspots.header.name = {
             x: startX,
             y: t,
             w: d.width,
@@ -83,14 +135,15 @@
     }
 
     function drawProject() {
+        var ff = (s.index === 1 ? "bold" : "") + "nav";
         x.fillStyle = colors.nav;
-        x.font = font("nav");
+        x.font = font(ff);
 
         var d = x.measureText(TEXT.projects),
             startX = lineStart + (lineWidth / 3.6),
-            startY = m.txt("nav", lineStartY),
+            startY = m.txt(ff, lineStartY),
             lineY = m.txt("pad", linePos),
-            lineStop = m.txt("nav", lineY);
+            lineStop = m.txt(ff, lineY);
 
         x.fillText(TEXT.projects, lineStart, startY);
 
@@ -98,28 +151,31 @@
             x: lineStart,
             y: lineY,
             w: d.width,
-            h: m.txt("nav", 0)
+            h: m.txt(ff, 0)
         };
 
         navX = startX;
 
+        x.lineWidth = 1;
         x.strokeStyle = colors.navLine;
         x.beginPath();
         x.moveTo(startX, lineY);
         x.lineTo(startX, lineStop);
         x.stroke();
+        x.closePath();
     }
 
     function drawInfo() {
+        var ff = (s.index === 2 ? "bold" : "") + "nav";
         x.fillStyle = colors.nav;
-        x.font = font("nav");
+        x.font = font(ff);
 
         var d = x.measureText(TEXT.info),
             dist = (lineWidth / 4),
             startX = navX + dist,
-            startY = m.txt("nav", lineStartY),
+            startY = m.txt(ff, lineStartY),
             lineY = m.txt("pad", linePos),
-            lineStop = m.txt("nav", lineY),
+            lineStop = m.txt(ff, lineY),
             pos = navX + ((dist - d.width) / 2);
 
         x.fillText(TEXT.info, pos, startY);
@@ -128,28 +184,31 @@
             x: pos,
             y: lineY,
             w: d.width,
-            h: m.txt("nav", 0)
+            h: m.txt(ff, 0)
         };
 
         navX = startX;
 
+        x.lineWidth = 1;
         x.strokeStyle = colors.navLine;
         x.beginPath();
         x.moveTo(startX, lineY);
         x.lineTo(startX, lineStop);
         x.stroke();
+        x.closePath();
     }
 
     function drawContact() {
+        var ff = (s.index === 3 ? "bold" : "") + "nav";
         x.fillStyle = colors.nav;
-        x.font = font("nav");
+        x.font = font(ff);
 
         var d = x.measureText(TEXT.contact),
             dist = (lineWidth / 3.4),
             startX = navX + dist,
-            startY = m.txt("nav", lineStartY),
+            startY = m.txt(ff, lineStartY),
             lineY = m.txt("pad", linePos),
-            lineStop = m.txt("nav", lineY),
+            lineStop = m.txt(ff, lineY),
             pos = navX + ((dist - d.width) / 2);
 
         x.fillText(TEXT.contact, pos, startY);
@@ -158,31 +217,34 @@
             x: pos,
             y: lineY,
             w: d.width,
-            h: m.txt("nav", 0)
+            h: m.txt(ff, 0)
         };
 
         navX = startX;
 
+        x.lineWidth = 1;
         x.strokeStyle = colors.navLine;
         x.beginPath();
         x.moveTo(startX, lineY);
         x.lineTo(startX, lineStop);
         x.stroke();
+        x.closePath();
     }
 
     function drawNews() {
+        var ff = (s.index === 4 ? "bold" : "") + "nav";
         x.fillStyle = colors.nav;
-        x.font = font("nav");
+        x.font = font(ff);
 
         var d = x.measureText(TEXT.news),
             startX = m.rtxt(d.width),
-            startY = m.txt("nav", lineStartY);
+            startY = m.txt(ff, lineStartY);
 
         s.hotspots.header.news = {
             x: startX,
             y: m.txt("pad", linePos),
             w: d.width,
-            h: m.txt("nav", 0)
+            h: m.txt(ff, 0)
         };
 
         x.fillText(TEXT.news, startX, startY);
@@ -193,6 +255,45 @@
         drawInfo();
         drawContact();
         drawNews();
+    }
+
+    function drawPointerLabels(label, bot) {
+        x.globalAlpha = s.scrollPercent;
+        x.fillStyle = colors.pointer;
+        x.font = font("pointer");
+
+        var dx = window.pointerEnd,
+            dy = bot ? window.bottomPointerY : window.topPointerY,
+            d = x.measureText(label),
+            h = m.txt("pointer", 0);
+
+        x.fillText(label, dx, dy);
+
+        return (dx + d.width);
+    }
+
+    window.pointerLabel = drawPointerLabels;
+
+    function drawPointerBars() {
+        x.globalAlpha = s.scrollPercent;
+        x.fillStyle = colors.pointer;
+        x.font = font("pointer");
+
+        var dx = m.col(-1, true),
+            dy = m.txt("pointer", brandingEnd),
+            d = x.measureText(TEXT.pointer),
+            h = m.txt("pointer", 0);
+
+        window.topPointerY = dy;
+        window.bottomPointerY = m.full.y - (dy * 1.25);
+        window.bottomPointerO = window.bottomPointerY - (h / 2);
+
+        x.fillText(TEXT.pointer, dx, window.topPointerY);
+        if ($.inArray(s.index, noBottomPointer) === -1) {
+            x.fillText(TEXT.pointer, dx, window.bottomPointerY);
+        }
+
+        window.pointerEnd = (dx + d.width);
     }
 
     window.header = function () {
@@ -220,6 +321,7 @@
         drawBranding();
         drawName();
         drawNav();
+        drawPointerBars();
 
 /*
         x.fillStyle = "#FF0000";

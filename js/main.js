@@ -46,6 +46,7 @@
 
             nameLine: "#000",
             navLine: "#000",
+            pointer: "#7c7c7c",
 
             standard: "#000"
         },
@@ -74,10 +75,22 @@
                 styles: "lighter",
                 scaling: .71
             },
+            boldnav: {
+                factor: 50,
+                min: 12,
+                styles: "bold",
+                scaling: 1.25
+            },
             nav: {
                 factor: 50,
                 min: 12,
                 styles: "normal",
+                scaling: 1.25
+            },
+            pointer: {
+                factor: 50,
+                min: 12,
+                styles: "bold",
                 scaling: 1.25
             },
 
@@ -115,11 +128,18 @@
 
         TRANS = Math.round(60/TargetFPS),
 
+        pointers = {
+            active: null,
+            next: null
+        },
+
         scene = {
             index: -1,
             drawn: false,
             done: false,
             focused: false,
+            scrollPercent: 1,
+            scrollRemainder: 0,
             hotspots: {},
             dest: {},
             mouseX: 0,
@@ -128,6 +148,7 @@
         },
 
         camera = {
+            distance: 1,
             speed: 6,
             x: 0,
             y: 0,
@@ -242,9 +263,9 @@
         return undefined;
     }
 
-    function font(typo) {
-        var s = "";
-        if (typography[typo].styles) {
+    function font(typo, os) {
+        var s = os || "";
+        if (s === "" && typography[typo].styles) {
             s = typography[typo].styles + " ";
         }
 
@@ -252,6 +273,8 @@
     }
 
     function moveCamera(x, y, d, s) {
+        camera.distance = Math.abs(x - camera.x) || 1;
+
         camera.speed = s;
         camera.destination.speed = d;
         camera.destination.x = x;
@@ -269,6 +292,8 @@
             s = scene,
             w = window.win,
             e = window.ce;
+
+        s.drawn = false;
 
         // Set the new window size
         m.viewport.w = w.width();
@@ -317,15 +342,14 @@
 
         // @TODO: Reposition sharing icons
 
-        moveCamera(-1 * m.full.x * s.index, 0, c.resize.drag, c.resize.speed);
-
-        s.drawn = false;
+        //moveCamera(-1 * m.full.x * s.index, 0, c.resize.drag, c.resize.speed);
     }
 
     function finish () {
         setTimeout(function () {
             scene.done = false;
-            scene.index = 1;
+            scene.index = 0;
+            pointers.active = window.slide0Pointers;
 
             scene.hotspots.header = {};
             scene.hotspots.slide0 = {};
@@ -346,14 +370,14 @@
         console.log("@TODO: Scene specific focus events");
     }
 
-    function invoke(idx) {
+    function invoke(idx, only) {
         switch (idx) {
 
-        case 0: slide0(); break;
-        case 1: slide1(); break;
-        case 2: slide2(); break;
-        case 3: slide3(); break;
-        case 4: slide4(); break;
+        case 0: slide0(only); break;
+        case 1: slide1(only); break;
+        case 2: slide2(only); break;
+        case 3: slide3(only); break;
+        case 4: slide4(only); break;
 
         }
     }
@@ -398,8 +422,23 @@
             m = measure,
             s = scene;
 
+        if (!s.drawn) { return; }
+
         c.x += perc(c.destination.x, c.x, c.speed);
         c.speed += perc(c.destination.speed, c.speed, 2);
+
+        s.scrollRemainder = Math.abs(c.x - c.destination.x) / c.distance;
+        if (s.scrollRemainder <= 0.5 && pointers.next !== null) {
+            pointers.active = pointers.next;
+            pointers.next = null;
+        }
+
+        if (s.scrollRemainder < 0.05) {
+            s.scrollRemainder = 0;
+        }
+
+        var sr = 1 - s.scrollRemainder;
+        s.scrollPercent = (4 * (sr * sr)) - (4 * sr) + 1;
 
         m.units = (m.unit.base * m.unit.factor) * zoom.level;
         m.delta.x = m.half.x + c.x;
@@ -425,7 +464,8 @@
             x = window.cxa,
             w = m.full.x,
             o = m.units,
-            idx = 0, cur = 0, nxt = 0, max = 2;
+            idx = 0, cur = 0, nxt = 0, max = 2,
+            a = [];
 
         x.lineWidth = 1;
         x.globalAlpha = 1;
@@ -437,7 +477,7 @@
         for (; idx < TOTAL_SLIDES; idx++) {
             cur = -1 * w * idx;
             if (c.x > (cur - w + o) && c.x < (cur + w - o)) {
-                invoke(idx);
+                a.push(idx);
                 max--;
             }
 
@@ -445,6 +485,15 @@
                 break;
             }
         }
+
+        if (scene.scrollPercent > 0) {
+            pointers.active();
+        }
+
+        $.each(a, function (i, v) {
+            invoke(v, i === 0);
+        });
+
     }
 
     /**
@@ -481,6 +530,8 @@
             onDrawSlide();
             onDrawDisplay();
 
+            scene.drawn = true;
+
             onTesting();
         }
     }
@@ -502,6 +553,7 @@
                 scene.focused = false;
                 s.drawn = false;
                 scene.index = d;
+                pointers.next = window["slide" + scene.index + "Pointers"];
                 moveCamera(-1 * m.full.x * s.index, 0, c.resize.drag, c.resize.speed);
             } else {
                 console.log("unknown action", o);

@@ -3,13 +3,22 @@
         m = window.measure,
         x = window.cxa;
 
-    window.slide3 = function () {
-        var orig =  m.full.x * -3;
+    function drawDebug() {
+        var orig =  -3 * m.full.x;
 
         x.globalAlpha = 1;
         x.textAlign = "center";
         x.fillStyle = "#000";
         x.font = font("header");
         x.fillText("Contact", m.delta.x - orig, m.delta.y);
+    }
+
+    window.slide3 = function (only) {
+        drawDebug();
     };
+
+    window.slide3Pointers = function drawPointerLabels() {
+        window.pointerLabel(window.pgLabels.slide3top);
+        window.pointerLabel(window.pgLabels.slide3bottom, true);
+    }
 }(jQuery));

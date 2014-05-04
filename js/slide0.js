@@ -29,17 +29,24 @@
         x.textAlign = "center";
         x.fillStyle = "#000";
         x.font = font("header");
-        x.fillText("Featured", m.delta.x, m.delta.y);
+		
+        var orig =  -1 * m.full.x;
+		
+        x.fillText("Featured Page 1", m.delta.x + m.content_delta.x, m.delta.y + m.content_delta.y);
+        x.fillText("Featured Page 2", m.delta.x + m.content_delta.x - orig, m.delta.y + m.content_delta.y);
     }
+	
+	s.maxContent[0] = 1;
 
     window.slide0 = function (only) {
-        drawDebug();
     };
 
     window.slide0Pointers = function drawPointerLabels() {
         window.pointerLabel(window.pgLabels.slide0top);
         endPointer = window.pointerLabel(window.pgLabels.slide0bottom, true);
         drawFeaturedSquare();
+		window.drawContentArrows();
+        drawDebug();
     }
 
 }(jQuery));

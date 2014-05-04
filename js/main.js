@@ -135,6 +135,8 @@
 
         scene = {
             index: -1,
+			content_index: -1,
+			nav_index: -1,
             drawn: false,
             done: false,
             focused: false,
@@ -142,12 +144,48 @@
             scrollRemainder: 0,
             hotspots: {},
             dest: {},
+            content: {},
+            nav: {},
             mouseX: 0,
             mouseY: 0,
-            isOver: null
+            isOver: null,
+			maxContent: {},
+			maxNav: {}
         },
 
         camera = {
+            distance: 1,
+            speed: 6,
+            x: 0,
+            y: 0,
+            destination: {
+                speed: 6,
+                x: 0,
+                y: 0
+            },
+            resize: {
+                speed: 10,
+                drag: 10
+            }
+        },
+
+        content_camera = {
+            distance: 1,
+            speed: 6,
+            x: 0,
+            y: 0,
+            destination: {
+                speed: 6,
+                x: 0,
+                y: 0
+            },
+            resize: {
+                speed: 10,
+                drag: 10
+            }
+        },
+
+        nav_camera = {
             distance: 1,
             speed: 6,
             x: 0,
@@ -218,6 +256,15 @@
                 x: 0,
                 y: 0
             },
+            content_delta: {
+                x: 0,
+                y: 0
+            },
+            nav_delta: {
+                x: 0,
+                y: 0
+            },
+			nav: 0,
             scale: {
                 x: 0,
                 y: 0
@@ -272,13 +319,14 @@
         return s + measure.typography[typo] + "px HelveticaNeue-UltraLight, Helvetica, Arial";
     }
 
-    function moveCamera(x, y, d, s) {
-        camera.distance = Math.abs(x - camera.x) || 1;
+    function moveCamera(x, y, d, s, c) {
+		c = c || camera;
+        c.distance = Math.abs(x - c.x) || 1;
 
-        camera.speed = s;
-        camera.destination.speed = d;
-        camera.destination.x = x;
-        camera.destination.y = y;
+        c.speed = s;
+        c.destination.speed = d;
+        c.destination.x = x;
+        c.destination.y = y;
     }
 
     function perc(a, b, c) {
@@ -349,6 +397,10 @@
         setTimeout(function () {
             scene.done = false;
             scene.index = 0;
+            scene.content_index = 0;
+            scene.nav_index = 0;
+			scene.content[0] = {};
+			scene.nav[0] = {};
             pointers.active = window.slide0Pointers;
 
             scene.hotspots.header = {};
@@ -419,6 +471,8 @@
      */
     function onUpdate() {
         var c = camera,
+			nc = nav_camera
+			cc = content_camera,
             m = measure,
             s = scene;
 
@@ -426,6 +480,12 @@
 
         c.x += perc(c.destination.x, c.x, c.speed);
         c.speed += perc(c.destination.speed, c.speed, 2);
+		
+        nc.x += perc(nc.destination.x, nc.x, nc.speed);
+        nc.speed += perc(nc.destination.speed, nc.speed, 2);
+		
+        cc.x += perc(cc.destination.x, cc.x, cc.speed);
+        cc.speed += perc(cc.destination.speed, cc.speed, 2);
 
         s.scrollRemainder = Math.abs(c.x - c.destination.x) / c.distance;
         if (s.scrollRemainder <= 0.5 && pointers.next !== null) {
@@ -443,6 +503,12 @@
         m.units = (m.unit.base * m.unit.factor) * zoom.level;
         m.delta.x = m.half.x + c.x;
         m.delta.y = m.half.y + c.y;
+		
+        m.nav_delta.x = nc.x;
+        m.nav_delta.y = nc.y;
+		
+        m.content_delta.x = cc.x;
+        m.content_delta.y = cc.y;
 
         m.focus.min = (-1 * m.full.x * s.index) - (1 * m.units);
         m.focus.max = (-1 * m.full.x * s.index) + (1 * m.units);
@@ -542,19 +608,73 @@
         mousemove(event);
 
         var c = camera,
+            nc = nav_camera,
+            cc = content_camera,
             m = measure,
             s = scene,
             o = s.isOver,
-            d;
+            d, 
+			dc = false,
+			dn = false;
 
         if (o !== null) {
             d = scene.dest[o];
-            if (d !== undefined) {
-                scene.focused = false;
-                s.drawn = false;
-                scene.index = d;
-                pointers.next = window["slide" + scene.index + "Pointers"];
-                moveCamera(-1 * m.full.x * s.index, 0, c.resize.drag, c.resize.speed);
+			
+			if (o === "leftContent") {
+				scene.content_index--;
+				dc = true;
+			} else if (o === "rightContent") {
+				scene.content_index++;
+				dc = true;
+			}
+			
+			if (o === "leftNav") {
+				scene.nav_index--;
+				dn = true;
+			} else if (o === "rightNav") {
+				scene.nav_index++;
+				dn = true;
+			}
+
+			if (dc) {
+				if (s.content_index < 0) {
+					s.content_index = s.maxContent[s.index];
+				}
+				
+				if (s.content_index > s.maxContent[s.index]) {
+					s.content_index = 0;
+				}
+				
+                moveCamera(-1 * m.full.x * s.content_index, 0, cc.resize.drag, cc.resize.speed, cc);
+			} else if (dn) {
+				if (s.nav_index < 0) {
+					s.nav_index = s.maxNav[s.index];
+				}
+				
+				if (s.nav_index > s.maxNav[s.index]) {
+					s.nav_index = 0;
+				}
+				
+                moveCamera(-1 * m.full.x * s.nav_index, 0, nc.resize.drag, nc.resize.speed, nc);
+			} else if (d !== undefined) {
+				if (scene.index !== d) {
+					scene.focused = false;
+					s.drawn = false;
+					scene.index = d;
+					
+					if (scene.content[scene.index] === undefined) {
+						scene.content[scene.index] = {};
+					}
+					
+					if (scene.nav[scene.index] === undefined) {
+						scene.nav[scene.index] = {};
+					}
+					
+					scene.content_index = 0;
+					scene.nav_index = 0;
+					pointers.next = window["slide" + scene.index + "Pointers"];
+					moveCamera(-1 * m.full.x * s.index, 0, c.resize.drag, c.resize.speed);
+				}
             } else {
                 console.log("unknown action", o);
             }
@@ -627,6 +747,8 @@
     window.tst = TESTING;
     window.dbgm = DEBUG || TESTING;
     window.cam = camera;
+    window.navcam = nav_camera;
+    window.concam = content_camera;
 
     // ===== Init =====
 

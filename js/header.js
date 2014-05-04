@@ -74,6 +74,104 @@
             TEXT[v] = mkpointer(pointers[v], TEXT[v]);
         }
     });
+	
+	function drawLeftContentArrow() {
+        x.globalAlpha = s.scrollPercent;
+		x.fillStyle = colors.nav;
+        x.font = font("branding");
+
+        var dx = m.col(-1, true),
+            dy = m.delta.y,
+            d = x.measureText("<"),
+            h = m.txt("branding", 0);
+
+        x.fillText("<", dx + (d.width / 2), dy);
+        brandingEnd = dy + (h / 2);
+
+        s.hotspots.header.leftContent = {
+            x: dx,
+            y: dy - h,
+            w: d.width,
+            h: h
+        };
+	}
+	
+	function drawRightContentArrow() {
+        x.globalAlpha = s.scrollPercent;
+		x.fillStyle = colors.nav;
+        x.font = font("branding");
+
+        var dx = m.stage.w,
+            dy = m.delta.y,
+            d = x.measureText(">"),
+            h = m.txt("branding", 0);
+
+        x.fillText(">", dx - (d.width / 2), dy);
+        brandingEnd = dy + (h / 2);
+
+		s.hotspots.header.rightContent = {
+            x: dx - (d.width / 2),
+            y: dy - h,
+            w: d.width,
+            h: h
+        };
+	}
+	
+	window.drawContentArrows = function () {
+		drawLeftContentArrow();
+		drawRightContentArrow();
+	}
+	
+	function drawLeftNavArrow() {
+        x.globalAlpha = s.scrollPercent;
+		x.fillStyle = colors.nav;
+        x.font = font("branding");
+
+        var dx = m.col(-1, true),
+            dy = window.bottomPointerY,
+            d = x.measureText("<"),
+            h = m.txt("branding", 0);
+			
+		dy += h * 2;
+
+        x.fillText("<", dx + (d.width / 2), dy);
+        brandingEnd = dy + (h / 2);
+
+        s.hotspots.header.leftNav = {
+            x: dx,
+            y: dy - h,
+            w: d.width,
+            h: h
+        };
+	}
+	
+	function drawRightNavArrow() {
+        x.globalAlpha = s.scrollPercent;
+		x.fillStyle = colors.nav;
+        x.font = font("branding");
+
+        var dx = m.stage.w,
+            dy = window.bottomPointerY,
+            d = x.measureText(">"),
+            h = m.txt("branding", 0);
+			
+		dy += h * 2;
+
+        x.fillText(">", dx - (d.width / 2), dy);
+        brandingEnd = dy + (h / 2);
+
+        s.hotspots.header.rightNav = {
+            x: dx - (d.width / 2),
+            y: dy - h,
+            w: d.width,
+            h: h
+        };
+	}
+	
+	window.drawNavArrows = function () {
+		drawLeftNavArrow();
+		drawRightNavArrow();
+	}
 
     // Setup scene destinations
     s.dest.name = 0;
@@ -287,6 +385,8 @@
         window.topPointerY = dy;
         window.bottomPointerY = m.full.y - (dy * 1.25);
         window.bottomPointerO = window.bottomPointerY - (h / 2);
+		
+		m.nav = window.bottomPointerY + (dy * .75);
 
         x.fillText(TEXT.pointer, dx, window.topPointerY);
         if ($.inArray(s.index, noBottomPointer) === -1) {

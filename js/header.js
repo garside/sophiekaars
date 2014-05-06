@@ -85,7 +85,7 @@
             d = x.measureText("<"),
             h = m.txt("branding", 0);
 
-        x.fillText("<", dx + (d.width / 2), dy);
+        x.fillText("<", dx, dy);
         brandingEnd = dy + (h / 2);
 
         s.hotspots.header.leftContent = {
@@ -122,6 +122,33 @@
 		drawRightContentArrow();
 	}
 	
+	window.drawCloseBox = function () {
+		x.globalAlpha = s.scrollPercent;
+		x.fillStyle = colors.nav;
+        x.font = font("name");
+
+        var dx = m.stage.w,
+            dy = window.topPointerY,
+            d = x.measureText("X"),
+            h = m.txt("name", 0);
+			
+		dy += (h * 2);
+
+        x.fillText("X", dx - (d.width / 2), dy);
+
+		var r = s.hotspots.header.closeContent = {
+            x: dx - (d.width / 2) * 1.5,
+            y: dy - (h * 1.25),
+            w: d.width * 1.5,
+            h: h * 1.5
+        };
+		
+		x.beginPath();
+        x.rect(r.x, r.y, r.w, r.h);
+        x.stroke();
+        x.closePath();
+	}
+	
 	function drawLeftNavArrow() {
         x.globalAlpha = s.scrollPercent;
 		x.fillStyle = colors.nav;
@@ -134,7 +161,7 @@
 			
 		dy += h * 2;
 
-        x.fillText("<", dx + (d.width / 2), dy);
+        x.fillText("<", dx, dy);
         brandingEnd = dy + (h / 2);
 
         s.hotspots.header.leftNav = {

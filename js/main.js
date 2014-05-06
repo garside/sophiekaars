@@ -1,4 +1,9 @@
 (function ($) {
+
+	window.vimeo = function (id, w, h) {
+		return '<iframe src="//player.vimeo.com/video/' + id + '?autoplay=1" width="' + w + '" height="' + h + '" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
+	}
+
     // ===== Settings =====
 
     /*
@@ -21,7 +26,17 @@
                 w: 200,
                 h: 200,
                 n: "img/bg.png"
-            }
+            },
+			frackingImg: {
+				w: 600,
+				h: 372,
+				n: "img/fracking.png"
+			},
+			NotForChildrenImg: {
+				w: 800,
+				h: 400,
+				n: "http://i.vimeocdn.com/video/438810588_800.jpg"
+			}
         },
 
         // The ideal number of frames per second
@@ -142,7 +157,14 @@
             focused: false,
             scrollPercent: 1,
             scrollRemainder: 0,
-            hotspots: {},
+            hotspots: {
+				header: {},
+				slide0: {},
+				slide1: {},
+				slide2: {},
+				slide3: {},
+				slide4: {}
+			},
             dest: {},
             content: {},
             nav: {},
@@ -402,13 +424,6 @@
 			scene.content[0] = {};
 			scene.nav[0] = {};
             pointers.active = window.slide0Pointers;
-
-            scene.hotspots.header = {};
-            scene.hotspots.slide0 = {};
-            scene.hotspots.slide1 = {};
-            scene.hotspots.slide2 = {};
-            scene.hotspots.slide3 = {};
-            scene.hotspots.slide4 = {};
 
             setTimeout(function () {
                 scene.done = true;
@@ -675,6 +690,13 @@
 					pointers.next = window["slide" + scene.index + "Pointers"];
 					moveCamera(-1 * m.full.x * s.index, 0, c.resize.drag, c.resize.speed);
 				}
+			} else if (o === "closeContent") {
+				if ($.isFunction(window.onCloseContent)) {
+					window.onCloseContent();
+					window.onCloseContent = null;
+				}
+			} else if ($.isFunction(window['_cb_' + o])) {
+				window['_cb_' + o]();
             } else {
                 console.log("unknown action", o);
             }
@@ -686,6 +708,10 @@
     }
 
     function mousemove(event) {
+		if (scene.index === -1) {
+			return;
+		}
+	
         var pos = findPosition(event.target),
             x = event.pageX - pos.x,
             y = event.pageY - pos.y,
@@ -696,6 +722,13 @@
         scene.isOver = null;
 
         $.each(scene.hotspots.header, function (name, pos) {
+            if (overSpot(pos)) {
+                scene.isOver = name;
+                return false;
+            }
+        });
+
+        $.each(scene.hotspots["slide" + scene.index], function (name, pos) {
             if (overSpot(pos)) {
                 scene.isOver = name;
                 return false;
@@ -749,6 +782,8 @@
     window.cam = camera;
     window.navcam = nav_camera;
     window.concam = content_camera;
+	window.imgs = imageSources;
+	window.asra = {};
 
     // ===== Init =====
 
@@ -764,6 +799,7 @@
             i.src = v.n;
 
             imageSources[k] = i;
+			window.asra[k] = (v.w / v.h);
 
             files.push(k + "*:" + v.n);
         });

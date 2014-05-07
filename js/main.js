@@ -1,7 +1,7 @@
 (function ($) {
 
 	window.vimeo = function (id, w, h) {
-		return '<iframe src="//player.vimeo.com/video/' + id + '?autoplay=1" width="' + w + '" height="' + h + '" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
+		return '<iframe src="http://player.vimeo.com/video/' + id + '?autoplay=1" width="' + w + '" height="' + h + '" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
 	}
 
     // ===== Settings =====

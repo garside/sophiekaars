@@ -15,7 +15,7 @@
 		
 		var vw = fw / 2;
 		vid = $(document.createElement('div')).appendTo('body').css({
-			background: "#F00",
+			background: "#000",
 			height: fh,
 			width: vw,
 			position: 'absolute',

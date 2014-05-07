@@ -40,7 +40,7 @@
         x.globalAlpha = s.scrollPercent;
         x.strokeStyle = "#000";
         x.lineWidth = 3;
-        x.fillStyle = "#FFF";
+        x.fillStyle = "#000";
 
         var w = ch * .8,
             h = w,

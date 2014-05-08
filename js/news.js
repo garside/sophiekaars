@@ -1,9 +1,13 @@
 (function ($) {
     function commonCloseArticle() {
         if (article) {
-            featuredIdx = -1;
             article.remove();
             article = null;
+        }
+
+        if (featuredIdx > -1) {
+            featuredIdx = -1;
+            setScene(0);
         }
     }
 
@@ -14,13 +18,14 @@
         colors = window.clrs,
         article,
         featuredIdx = -1,
-        fw, fh;
+        fw, fh, hasText = false;
 
     window.featureBlogEntry = function (idx) {
         var be = window.blog_posts.feed.entry;
 
         article = null;
         featuredIdx = parseInt(idx, 10);
+        hasText = false;
 
         if (isNaN(featuredIdx) || featuredIdx < 0 || !be[featuredIdx]) {
             featuredIdx = -1;
@@ -49,6 +54,8 @@
             s = $(document.createElement('span')),
             p = new Date(entry.published.$t);
 
+        a.hide();
+
         d.html(p.toString('dd/M/yyyy'));
         s.html(' - ' + entry.title.$t);
 
@@ -59,6 +66,9 @@
         a.append(entry.content.$t);
 
         article.append(a);
+
+        a.fadeIn('fast');
+        hasText = true;
     }
 
     function drawArticle() {
@@ -80,12 +90,14 @@
                     left: 0
                 })
                 .addClass('blog-entry');
-
-            setArticleText(featuredIdx);
-            article.perfectScrollbar();
         }
 
         x.globalAlpha = s.scrollPercent;
+
+        if (s.scrollPercent >= .95 && article != null && !hasText) {
+            setArticleText(featuredIdx);
+            article.perfectScrollbar();
+        }
 
         var vw = m.col(1, true),
             vh = fh,

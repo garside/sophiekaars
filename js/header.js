@@ -65,6 +65,8 @@
     window.pointerEnd;
     window.topPointerY;
     window.bottomPointerY;
+    window.bottomPointerO;
+    window.bottomPointerU;
 
     // Letter spacing isn't a thing in canvas, so add spaces manually where
     // desired.
@@ -74,10 +76,10 @@
             TEXT[v] = mkpointer(pointers[v], TEXT[v]);
         }
     });
-	
-	function drawLeftContentArrow() {
+
+    function drawLeftContentArrow() {
         x.globalAlpha = s.scrollPercent;
-		x.fillStyle = colors.nav;
+        x.fillStyle = colors.nav;
         x.font = font("branding");
 
         var dx = m.col(-1, true),
@@ -94,11 +96,11 @@
             w: d.width,
             h: h
         };
-	}
-	
-	function drawRightContentArrow() {
+    }
+
+    function drawRightContentArrow() {
         x.globalAlpha = s.scrollPercent;
-		x.fillStyle = colors.nav;
+        x.fillStyle = colors.nav;
         x.font = font("branding");
 
         var dx = m.stage.w,
@@ -109,57 +111,57 @@
         x.fillText(">", dx - (d.width / 2), dy);
         brandingEnd = dy + (h / 2);
 
-		s.hotspots.header.rightContent = {
+        s.hotspots.header.rightContent = {
             x: dx - (d.width / 2),
             y: dy - h,
             w: d.width,
             h: h
         };
-	}
-	
-	window.drawContentArrows = function () {
-		drawLeftContentArrow();
-		drawRightContentArrow();
-	}
-	
-	window.drawCloseBox = function () {
-		x.globalAlpha = s.scrollPercent;
-		x.fillStyle = colors.nav;
+    }
+
+    window.drawContentArrows = function () {
+        drawLeftContentArrow();
+        drawRightContentArrow();
+    }
+
+    window.drawCloseBox = function () {
+        x.globalAlpha = s.scrollPercent;
+        x.fillStyle = colors.nav;
         x.font = font("name");
 
         var dx = m.stage.w,
             dy = window.topPointerY,
             d = x.measureText("X"),
             h = m.txt("name", 0);
-			
-		dy += (h * 2);
+
+        dy += (h * 2);
 
         x.fillText("X", dx - (d.width / 2), dy);
 
-		var r = s.hotspots.header.closeContent = {
+        var r = s.hotspots.header.closeContent = {
             x: dx - (d.width / 2) * 1.5,
             y: dy - (h * 1.25),
             w: d.width * 1.5,
             h: h * 1.5
         };
-		
-		x.beginPath();
+
+        x.beginPath();
         x.rect(r.x, r.y, r.w, r.h);
         x.stroke();
         x.closePath();
-	}
-	
-	function drawLeftNavArrow() {
+    }
+
+    function drawLeftNavArrow() {
         x.globalAlpha = s.scrollPercent;
-		x.fillStyle = colors.nav;
+        x.fillStyle = colors.nav;
         x.font = font("branding");
 
         var dx = m.col(-1, true),
             dy = window.bottomPointerY,
             d = x.measureText("<"),
             h = m.txt("branding", 0);
-			
-		dy += h * 2;
+
+        dy += h * 2;
 
         x.fillText("<", dx, dy);
         brandingEnd = dy + (h / 2);
@@ -170,19 +172,19 @@
             w: d.width,
             h: h
         };
-	}
-	
-	function drawRightNavArrow() {
+    }
+
+    function drawRightNavArrow() {
         x.globalAlpha = s.scrollPercent;
-		x.fillStyle = colors.nav;
+        x.fillStyle = colors.nav;
         x.font = font("branding");
 
         var dx = m.stage.w,
             dy = window.bottomPointerY,
             d = x.measureText(">"),
             h = m.txt("branding", 0);
-			
-		dy += h * 2;
+
+        dy += h * 2;
 
         x.fillText(">", dx - (d.width / 2), dy);
         brandingEnd = dy + (h / 2);
@@ -193,12 +195,12 @@
             w: d.width,
             h: h
         };
-	}
-	
-	window.drawNavArrows = function () {
-		drawLeftNavArrow();
-		drawRightNavArrow();
-	}
+    }
+
+    window.drawNavArrows = function () {
+        drawLeftNavArrow();
+        drawRightNavArrow();
+    }
 
     // Setup scene destinations
     s.dest.name = 0;
@@ -410,10 +412,11 @@
             h = m.txt("pointer", 0);
 
         window.topPointerY = dy;
-        window.bottomPointerY = m.full.y - (dy * 1.25);
+        window.bottomPointerY = m.full.y - (dy * 1.15);
         window.bottomPointerO = window.bottomPointerY - (h / 2);
-		
-		m.nav = window.bottomPointerY + (dy * .75);
+        window.bottomPointerU = window.bottomPointerY + (h * 1.75);
+
+        m.nav = window.bottomPointerY + (dy * .75);
 
         x.fillText(TEXT.pointer, dx, window.topPointerY);
         if ($.inArray(s.index, noBottomPointer) === -1) {

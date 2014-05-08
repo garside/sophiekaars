@@ -1,8 +1,13 @@
 (function ($) {
 
-	window.vimeo = function (id, w, h) {
-		return '<iframe src="http://player.vimeo.com/video/' + id + '?autoplay=1" width="' + w + '" height="' + h + '" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
-	}
+    window.posts = function (x) {
+        window.blog_posts = x;
+        console.log("blog posts", x);
+    }
+
+    window.vimeo = function (id, w, h) {
+        return '<iframe src="http://player.vimeo.com/video/' + id + '?autoplay=1" width="' + w + '" height="' + h + '" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
+    }
 
     // ===== Settings =====
 
@@ -27,16 +32,16 @@
                 h: 200,
                 n: "img/bg.png"
             },
-			frackingImg: {
-				w: 600,
-				h: 372,
-				n: "img/fracking.png"
-			},
-			NotForChildrenImg: {
-				w: 800,
-				h: 400,
-				n: "http://i.vimeocdn.com/video/438810588_800.jpg"
-			}
+            frackingImg: {
+                w: 600,
+                h: 372,
+                n: "img/fracking.png"
+            },
+            NotForChildrenImg: {
+                w: 800,
+                h: 400,
+                n: "http://i.vimeocdn.com/video/438810588_800.jpg"
+            }
         },
 
         // The ideal number of frames per second
@@ -62,6 +67,9 @@
             nameLine: "#000",
             navLine: "#000",
             pointer: "#7c7c7c",
+
+            recent_date: "#999",
+            recent_title: "#000",
 
             standard: "#000"
         },
@@ -108,6 +116,12 @@
                 styles: "bold",
                 scaling: 1.25
             },
+            footer: {
+                factor: 70,
+                min: 12,
+                styles: "bold",
+                scaling: 1.25
+            },
 
             // Factorizors
             small: {
@@ -150,29 +164,29 @@
 
         scene = {
             index: -1,
-			content_index: -1,
-			nav_index: -1,
+            content_index: -1,
+            nav_index: -1,
             drawn: false,
             done: false,
             focused: false,
             scrollPercent: 1,
             scrollRemainder: 0,
             hotspots: {
-				header: {},
-				slide0: {},
-				slide1: {},
-				slide2: {},
-				slide3: {},
-				slide4: {}
-			},
+                header: {},
+                slide0: {},
+                slide1: {},
+                slide2: {},
+                slide3: {},
+                slide4: {}
+            },
             dest: {},
             content: {},
             nav: {},
             mouseX: 0,
             mouseY: 0,
             isOver: null,
-			maxContent: {},
-			maxNav: {}
+            maxContent: {},
+            maxNav: {}
         },
 
         camera = {
@@ -286,7 +300,7 @@
                 x: 0,
                 y: 0
             },
-			nav: 0,
+            nav: 0,
             scale: {
                 x: 0,
                 y: 0
@@ -342,7 +356,7 @@
     }
 
     function moveCamera(x, y, d, s, c) {
-		c = c || camera;
+        c = c || camera;
         c.distance = Math.abs(x - c.x) || 1;
 
         c.speed = s;
@@ -421,8 +435,8 @@
             scene.index = 0;
             scene.content_index = 0;
             scene.nav_index = 0;
-			scene.content[0] = {};
-			scene.nav[0] = {};
+            scene.content[0] = {};
+            scene.nav[0] = {};
             pointers.active = window.slide0Pointers;
 
             setTimeout(function () {
@@ -486,8 +500,8 @@
      */
     function onUpdate() {
         var c = camera,
-			nc = nav_camera
-			cc = content_camera,
+            nc = nav_camera
+            cc = content_camera,
             m = measure,
             s = scene;
 
@@ -495,10 +509,10 @@
 
         c.x += perc(c.destination.x, c.x, c.speed);
         c.speed += perc(c.destination.speed, c.speed, 2);
-		
+
         nc.x += perc(nc.destination.x, nc.x, nc.speed);
         nc.speed += perc(nc.destination.speed, nc.speed, 2);
-		
+
         cc.x += perc(cc.destination.x, cc.x, cc.speed);
         cc.speed += perc(cc.destination.speed, cc.speed, 2);
 
@@ -518,10 +532,10 @@
         m.units = (m.unit.base * m.unit.factor) * zoom.level;
         m.delta.x = m.half.x + c.x;
         m.delta.y = m.half.y + c.y;
-		
+
         m.nav_delta.x = nc.x;
         m.nav_delta.y = nc.y;
-		
+
         m.content_delta.x = cc.x;
         m.content_delta.y = cc.y;
 
@@ -617,6 +631,38 @@
         }
     }
 
+    function setScene(d) {
+        if (window.onCloseContent) {
+            window.onCloseContent();
+            window.onCloseContent = null;
+        }
+
+        var c = camera,
+            m = measure,
+            s = scene;
+
+        if (scene.index !== d) {
+            s.focused = false;
+            s.drawn = false;
+            s.index = d;
+
+            if (s.content[s.index] === undefined) {
+                s.content[s.index] = {};
+            }
+
+            if (s.nav[s.index] === undefined) {
+                s.nav[s.index] = {};
+            }
+
+            s.content_index = 0;
+            s.nav_index = 0;
+
+            pointers.next = window["slide" + s.index + "Pointers"];
+            moveCamera(-1 * m.full.x * s.index, 0, c.resize.drag, c.resize.speed);
+        }
+    }
+
+
     // ===== Handlers ====
 
     function mousedown(event) {
@@ -628,75 +674,58 @@
             m = measure,
             s = scene,
             o = s.isOver,
-            d, 
-			dc = false,
-			dn = false;
+            d,
+            dc = false,
+            dn = false;
 
         if (o !== null) {
             d = scene.dest[o];
-			
-			if (o === "leftContent") {
-				scene.content_index--;
-				dc = true;
-			} else if (o === "rightContent") {
-				scene.content_index++;
-				dc = true;
-			}
-			
-			if (o === "leftNav") {
-				scene.nav_index--;
-				dn = true;
-			} else if (o === "rightNav") {
-				scene.nav_index++;
-				dn = true;
-			}
 
-			if (dc) {
-				if (s.content_index < 0) {
-					s.content_index = s.maxContent[s.index];
-				}
-				
-				if (s.content_index > s.maxContent[s.index]) {
-					s.content_index = 0;
-				}
-				
+            if (o === "leftContent") {
+                scene.content_index--;
+                dc = true;
+            } else if (o === "rightContent") {
+                scene.content_index++;
+                dc = true;
+            }
+
+            if (o === "leftNav") {
+                scene.nav_index--;
+                dn = true;
+            } else if (o === "rightNav") {
+                scene.nav_index++;
+                dn = true;
+            }
+
+            if (dc) {
+                if (s.content_index < 0) {
+                    s.content_index = s.maxContent[s.index];
+                }
+
+                if (s.content_index > s.maxContent[s.index]) {
+                    s.content_index = 0;
+                }
+
                 moveCamera(-1 * m.full.x * s.content_index, 0, cc.resize.drag, cc.resize.speed, cc);
-			} else if (dn) {
-				if (s.nav_index < 0) {
-					s.nav_index = s.maxNav[s.index];
-				}
-				
-				if (s.nav_index > s.maxNav[s.index]) {
-					s.nav_index = 0;
-				}
-				
+            } else if (dn) {
+                if (s.nav_index < 0) {
+                    s.nav_index = s.maxNav[s.index];
+                }
+
+                if (s.nav_index > s.maxNav[s.index]) {
+                    s.nav_index = 0;
+                }
+
                 moveCamera(-1 * m.full.x * s.nav_index, 0, nc.resize.drag, nc.resize.speed, nc);
-			} else if (d !== undefined) {
-				if (scene.index !== d) {
-					scene.focused = false;
-					s.drawn = false;
-					scene.index = d;
-					
-					if (scene.content[scene.index] === undefined) {
-						scene.content[scene.index] = {};
-					}
-					
-					if (scene.nav[scene.index] === undefined) {
-						scene.nav[scene.index] = {};
-					}
-					
-					scene.content_index = 0;
-					scene.nav_index = 0;
-					pointers.next = window["slide" + scene.index + "Pointers"];
-					moveCamera(-1 * m.full.x * s.index, 0, c.resize.drag, c.resize.speed);
-				}
-			} else if (o === "closeContent") {
-				if ($.isFunction(window.onCloseContent)) {
-					window.onCloseContent();
-					window.onCloseContent = null;
-				}
-			} else if ($.isFunction(window['_cb_' + o])) {
-				window['_cb_' + o]();
+            } else if (d !== undefined) {
+                setScene(d);
+            } else if (o === "closeContent") {
+                if ($.isFunction(window.onCloseContent)) {
+                    window.onCloseContent();
+                    window.onCloseContent = null;
+                }
+            } else if ($.isFunction(window['_cb_' + o])) {
+                window['_cb_' + o]();
             } else {
                 console.log("unknown action", o);
             }
@@ -708,10 +737,10 @@
     }
 
     function mousemove(event) {
-		if (scene.index === -1) {
-			return;
-		}
-	
+        if (scene.index === -1) {
+            return;
+        }
+
         var pos = findPosition(event.target),
             x = event.pageX - pos.x,
             y = event.pageY - pos.y,
@@ -782,8 +811,10 @@
     window.cam = camera;
     window.navcam = nav_camera;
     window.concam = content_camera;
-	window.imgs = imageSources;
-	window.asra = {};
+    window.imgs = imageSources;
+    window.asra = {};
+
+    window.setScene = setScene;
 
     // ===== Init =====
 
@@ -799,7 +830,7 @@
             i.src = v.n;
 
             imageSources[k] = i;
-			window.asra[k] = (v.w / v.h);
+            window.asra[k] = (v.w / v.h);
 
             files.push(k + "*:" + v.n);
         });

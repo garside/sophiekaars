@@ -34,3 +34,15 @@ body {
 body.mouseover {
     cursor: pointer;
 }
+
+span.date {
+    color: #999;
+}
+
+.blog-entry {
+    overflow: hidden;
+}
+
+.blog-entry article {
+    padding-right: 10px;
+}

@@ -16,6 +16,7 @@
 
         <link rel="stylesheet" href="css/normalize.css">
         <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/perfect-scrollbar.min.css">
         <script src="js/vendor/modernizr-2.6.2.min.js"></script>
     </head>
     <body>
@@ -23,20 +24,29 @@
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 
+        <!-- Content -->
         <canvas id="main" class="unselectable"></canvas>
         <div id="keys" tabindex="1"></div>
 
+        <!-- Script block -->
         <script src="js/vendor/html5Preloader.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
         <script src="js/plugins.js"></script>
+        <script src="js/date.js"></script>
+        <script src="js/perfect-scrollbar.min.js"></script>
+
         <script src="js/main.js"></script>
         <script src="js/header.js"></script>
-        <script src="js/slide0.js"></script>
-        <script src="js/slide1.js"></script>
-        <script src="js/slide2.js"></script>
-        <script src="js/slide3.js"></script>
-        <script src="js/slide4.js"></script>
+
+        <script src="js/featured.js"></script>
+        <script src="js/projects.js"></script>
+        <script src="js/info.js"></script>
+        <script src="js/contact.js"></script>
+        <script src="js/news.js"></script>
+
+        <!-- Grab the blog posts -->
+        <script src="http://sophieks.blogspot.com/feeds/posts/default?alt=json-in-script&callback=posts"></script>
 
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
         <script>

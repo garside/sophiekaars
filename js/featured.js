@@ -96,8 +96,8 @@
 		pointer_str = "-------------------------------------------------";
 		d = x.measureText(pointer_str);
 		
-        x.fillText(pointer_str, dx, dy - (my * .04));
-		drawPointerLabel((dx + d.width), ly, ">TITLE");
+        x.fillText(pointer_str, dx, dy);
+		drawPointerLabel((dx + d.width), ly + (my * .02), "TITLE");
 		
         x.font = font("featured_txt");
 		x.fillText(o.title, dx + tx, dy + tx);
@@ -108,8 +108,8 @@
 		pointer_str = "-----------------------------";
 		d = x.measureText(pointer_str);
 		
-        x.fillText(pointer_str, dx, dy - (my * .04));
-		drawPointerLabel((dx + d.width), ly, ">DESCRIPTION");
+        x.fillText(pointer_str, dx, dy);
+		drawPointerLabel((dx + d.width), ly + (my * .02), "DESCRIPTION");
 		
         x.font = font("featured_txt");
 		window.wrapText(x, o.description, dx + (tx * .5), dy + tx, sw * .25, h);
@@ -123,8 +123,8 @@
 		pointer_str = "--------------------------------------------";
 		d = x.measureText(pointer_str);
 		
-        x.fillText(pointer_str, dx, dy - (my * .04));
-		drawPointerLabel((dx + d.width), ly, ">MADE>IN");
+        x.fillText(pointer_str, dx, dy);
+		drawPointerLabel((dx + d.width), ly + (my * .02), "MADE-IN");
 		
         x.font = font("featured_txt");
 		x.fillText(o.dated, dx + tx, dy + tx);
@@ -136,8 +136,8 @@
 		pointer_str = "-----------------------------------------";
 		d = x.measureText(pointer_str);
 		
-        x.fillText(pointer_str, dx, dy - (my * .04));
-		drawPointerLabel((dx + d.width), ly, ">CATEGORY");
+        x.fillText(pointer_str, dx, dy);
+		drawPointerLabel((dx + d.width), ly + (my * .02), "CATEGORY");
 		
         x.font = font("featured_txt");
 		x.fillText(o.format, dx + tx, dy + tx);

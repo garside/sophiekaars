@@ -131,13 +131,13 @@
             sm_pointer: {
                 factor: 70,
                 min: 12,
-                styles: "bold",
+                styles: "normal",
                 scaling: 1.25
             },
             featured_txt: {
                 factor: 80,
                 min: 12,
-                styles: "bold",
+                styles: "normal",
                 scaling: 1.25
             },
 

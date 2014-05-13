@@ -17,7 +17,7 @@
      */
 
         // The total number of slides in the site
-    var TOTAL_SLIDES = 5,
+    var TOTAL_SLIDES = 6,
 
         // The minimum width for the canvas
         MIN_WIDTH = 480,
@@ -41,6 +41,11 @@
                 w: 800,
                 h: 400,
                 n: "http://i.vimeocdn.com/video/438810588_800.jpg"
+            },
+            FiveTo12Img: {
+                w: 800,
+                h: 450,
+                n: "http://i.vimeocdn.com/video/439240517_800.jpg"
             }
         },
 
@@ -67,6 +72,7 @@
             nameLine: "#000",
             navLine: "#000",
             pointer: "#7c7c7c",
+			sm_pointer: "#000",
 
             recent_date: "#999",
             recent_title: "#000",
@@ -118,6 +124,18 @@
             },
             footer: {
                 factor: 70,
+                min: 12,
+                styles: "bold",
+                scaling: 1.25
+            },
+            sm_pointer: {
+                factor: 70,
+                min: 12,
+                styles: "bold",
+                scaling: 1.25
+            },
+            featured_txt: {
+                factor: 80,
                 min: 12,
                 styles: "bold",
                 scaling: 1.25
@@ -177,7 +195,8 @@
                 slide1: {},
                 slide2: {},
                 slide3: {},
-                slide4: {}
+                slide4: {},
+                slide5: {}
             },
             dest: {},
             content: {},
@@ -450,6 +469,28 @@
 
         console.log("@TODO: Scene specific focus events");
     }
+	
+	function wrapText(context, text, x, y, maxWidth, lineHeight) {
+        var words = text.split(' ');
+        var line = '';
+
+        for(var n = 0; n < words.length; n++) {
+          var testLine = line + words[n] + ' ';
+          var metrics = context.measureText(testLine);
+          var testWidth = metrics.width;
+          if (testWidth > maxWidth && n > 0) {
+            context.fillText(line, x, y);
+            line = words[n] + ' ';
+            y += lineHeight;
+          }
+          else {
+            line = testLine;
+          }
+        }
+        context.fillText(line, x, y);
+      }
+	
+	window.wrapText = wrapText;
 
     function invoke(idx, only) {
         switch (idx) {
@@ -459,6 +500,7 @@
         case 2: slide2(only); break;
         case 3: slide3(only); break;
         case 4: slide4(only); break;
+        case 5: slide5(only); break;
 
         }
     }

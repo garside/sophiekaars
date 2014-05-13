@@ -24,15 +24,17 @@
             slide3top: "CONTACT",
             slide3bottom: "SOCIAL>MEDIA",
 
-            slide4top: "NEWS"
+            slide4top: "NEWS",
+			
+			slide5top: "FRIENDS"
         },
         splits = ["branding", "name",
             "slide0top", "slide0bottom",
             "slide1top", "slide1bottom",
             "slide2top", "slide2bottom",
             "slide3top", "slide3bottom",
-            "slide4top"],
-        noBottomPointer = [4],
+            "slide4top", "slide5top"],
+        noBottomPointer = [4, 5],
         pointers = {
             slide0top: 18,
             slide0bottom: 3,
@@ -46,7 +48,9 @@
             slide3top: 18,
             slide3bottom: 14,
 
-            slide4top: 22
+            slide4top: 22,
+			
+			slide5top: 20
         },
         s = window.scene,
         m = window.measure,

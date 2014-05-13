@@ -92,9 +92,12 @@
 		ty = my * .1;
 			
 		ly = lineY * 1.06;
-			
-        x.fillText(pointer_str, dx, dy);
-		drawPointerLabel((dx + d.width), ly, ">>>>>>>>>>>TITLE");
+		
+		pointer_str = "-------------------------------------------------";
+		d = x.measureText(pointer_str);
+		
+        x.fillText(pointer_str, dx, dy - (my * .04));
+		drawPointerLabel((dx + d.width), ly, ">TITLE");
 		
         x.font = font("featured_txt");
 		x.fillText(o.title, dx + tx, dy + tx);
@@ -102,8 +105,11 @@
 		dx += mx;
 			
         x.font = font("sm_pointer");
-        x.fillText(pointer_str, dx, dy);
-		drawPointerLabel((dx + d.width), ly, "DESCRIPTION");
+		pointer_str = "-----------------------------";
+		d = x.measureText(pointer_str);
+		
+        x.fillText(pointer_str, dx, dy - (my * .04));
+		drawPointerLabel((dx + d.width), ly, ">DESCRIPTION");
 		
         x.font = font("featured_txt");
 		window.wrapText(x, o.description, dx + (tx * .5), dy + tx, sw * .25, h);
@@ -114,8 +120,11 @@
 		ly += my;
 			
         x.font = font("sm_pointer");
-        x.fillText(pointer_str, dx, dy);
-		drawPointerLabel((dx + d.width), ly, ">>>>>>>>MADE>IN");
+		pointer_str = "--------------------------------------------";
+		d = x.measureText(pointer_str);
+		
+        x.fillText(pointer_str, dx, dy - (my * .04));
+		drawPointerLabel((dx + d.width), ly, ">MADE>IN");
 		
         x.font = font("featured_txt");
 		x.fillText(o.dated, dx + tx, dy + tx);
@@ -124,8 +133,11 @@
 		ly += my;
 			
         x.font = font("sm_pointer");
-        x.fillText(pointer_str, dx, dy);
-		drawPointerLabel((dx + d.width), ly, ">>>>>>CATEGORY");
+		pointer_str = "-----------------------------------------";
+		d = x.measureText(pointer_str);
+		
+        x.fillText(pointer_str, dx, dy - (my * .04));
+		drawPointerLabel((dx + d.width), ly, ">CATEGORY");
 		
         x.font = font("featured_txt");
 		x.fillText(o.format, dx + tx, dy + tx);
@@ -151,7 +163,7 @@
     window._cb_featured1 = function () { goNews(1); }
     window._cb_featured2 = function () { goNews(2); }
 
-    var pointer_str = ">>>>>>>>>>>>>>>>>",
+    var pointer_str = "-----------------------------",
 		font = window.fnt,
         m = window.measure,
         x = window.cxa,

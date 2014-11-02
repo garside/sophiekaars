@@ -26,29 +26,6 @@
         files = [
         ],
 
-        images = {
-            backgroundImg: {
-                w: 200,
-                h: 200,
-                n: "img/bg.png"
-            },
-            frackingImg: {
-                w: 600,
-                h: 372,
-                n: "img/fracking.png"
-            },
-            NotForChildrenImg: {
-                w: 800,
-                h: 400,
-                n: "http://i.vimeocdn.com/video/438810588_800.jpg"
-            },
-            FiveTo12Img: {
-                w: 800,
-                h: 450,
-                n: "http://i.vimeocdn.com/video/439240517_800.jpg"
-            }
-        },
-
         // The ideal number of frames per second
         TargetFPS = 54,
 
@@ -72,7 +49,7 @@
             nameLine: "#000",
             navLine: "#000",
             pointer: "#7c7c7c",
-			sm_pointer: "#000",
+            sm_pointer: "#000",
 
             recent_date: "#999",
             recent_title: "#000",
@@ -188,7 +165,9 @@
             done: false,
             focused: false,
             scrollPercent: 1,
+            navScrollPercent: 1,
             scrollRemainder: 0,
+            navScrollRemainder: 0,
             hotspots: {
                 header: {},
                 slide0: {},
@@ -205,7 +184,8 @@
             mouseY: 0,
             isOver: null,
             maxContent: {},
-            maxNav: {}
+            maxNav: {},
+            navContent: {}
         },
 
         camera = {
@@ -469,8 +449,8 @@
 
         console.log("@TODO: Scene specific focus events");
     }
-	
-	function wrapText(context, text, x, y, maxWidth, lineHeight) {
+    
+    function wrapText(context, text, x, y, maxWidth, lineHeight) {
         var words = text.split(' ');
         var line = '';
 
@@ -489,8 +469,8 @@
         }
         context.fillText(line, x, y);
       }
-	
-	window.wrapText = wrapText;
+    
+    window.wrapText = wrapText;
 
     function invoke(idx, only) {
         switch (idx) {
@@ -571,6 +551,14 @@
         var sr = 1 - s.scrollRemainder;
         s.scrollPercent = (4 * (sr * sr)) - (4 * sr) + 1;
 
+        s.navScrollRemainder = Math.abs(nc.x - nc.destination.x) / nc.distance;
+        if (s.navScrollRemainder < 0.05) {
+            s.navScrollRemainder = 0;
+        }
+
+        var nsr = 1 - s.navScrollRemainder;
+        s.navScrollPercent = (4 * (nsr * nsr)) - (4 * nsr) + 1;
+
         m.units = (m.unit.base * m.unit.factor) * zoom.level;
         m.delta.x = m.half.x + c.x;
         m.delta.y = m.half.y + c.y;
@@ -630,7 +618,6 @@
         $.each(a, function (i, v) {
             invoke(v, i === 0);
         });
-
     }
 
     /**
@@ -677,6 +664,9 @@
         if (window.onCloseContent) {
             window.onCloseContent();
             window.onCloseContent = null;
+            if (window.afterClose) {
+                window.afterClose();
+            }
         }
 
         var c = camera,
@@ -758,6 +748,10 @@
                     s.nav_index = 0;
                 }
 
+                if (s.navContent[s.index]) {
+                    moveCamera(-1 * m.full.x * s.content_index, -1 * m.full.y * s.nav_index, cc.resize.drag, cc.resize.speed, cc);
+                }
+
                 moveCamera(-1 * m.full.x * s.nav_index, 0, nc.resize.drag, nc.resize.speed, nc);
             } else if (d !== undefined) {
                 setScene(d);
@@ -765,6 +759,9 @@
                 if ($.isFunction(window.onCloseContent)) {
                     window.onCloseContent();
                     window.onCloseContent = null;
+                    if (window.afterClose) {
+                        window.afterClose();
+                    }
                 }
             } else if ($.isFunction(window['_cb_' + o])) {
                 window['_cb_' + o]();
@@ -867,7 +864,7 @@
 
         setInterval(onFrame, Math.round(1000/TargetFPS));
 
-        $.each(images, function (k, v) {
+        $.each(window.images, function (k, v) {
             var i = new Image();
             i.src = v.n;
 
